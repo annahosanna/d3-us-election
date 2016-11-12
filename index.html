@@ -6,8 +6,6 @@
     <script src="//d3js.org/topojson.v1.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="style.css">
-
-    <script src="election-2016.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -36,7 +34,21 @@
             .on("click", reset);
 
         var g = svg.append("g")
-            .style("stroke-width", "1.5px");
+            .style("stroke-width", "1.5px"); 
+
+        var stateColour = {};
+        
+        //Parse in state-data
+        d3.json("/data/state-data.json", function(error, data){
+          if(error) throw error;
+
+          data.forEach(function(d, i){
+            stateColour[d.id] = d.colour;
+          })
+
+
+          //console.log(stateColour);
+        }) 
 
         d3.json("/data/us.json", function(error, us) {
             if (error) throw error;
@@ -46,14 +58,27 @@
                 .enter().append("path")
                 .attr("d", path)
                 .attr("class", "feature")
-                .on("click", clicked);
+                .style("fill", function(d){
+                    return "#" + stateColour[d.id];
+                })
+                .on("click", clicked);   
+
+            /*g.append("path")
+                .datum(topojson.mesh(us, us.objects.counties, function(a, b) {
+                    return a !== b;
+                }))
+                .attr("class", "meshCounty")
+                .attr("d", path); */
 
             g.append("path")
                 .datum(topojson.mesh(us, us.objects.states, function(a, b) {
                     return a !== b;
                 }))
                 .attr("class", "mesh")
-                .attr("d", path);
+                .attr("d", path)
+                .on("click", clicked); 
+
+            
         });
 
         function clicked(d) {
