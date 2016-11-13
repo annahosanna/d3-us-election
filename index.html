@@ -37,18 +37,25 @@
             .style("stroke-width", "1.5px"); 
 
         var stateColour = {};
+        var stateData = {};
         
         //Parse in state-data
         d3.json("/data/state-data.json", function(error, data){
           if(error) throw error;
 
+          
+
           data.forEach(function(d, i){
+            stateData[d.id] = d;
             stateColour[d.id] = d.colour;
           })
 
-
+          console.log(stateData);
           //console.log(stateColour);
         }) 
+
+        var tooltip = d3.select('.whole-us').append('div')
+            .attr('class', 'hidden tooltip');
 
         d3.json("/data/us.json", function(error, us) {
             if (error) throw error;
@@ -58,10 +65,32 @@
                 .enter().append("path")
                 .attr("d", path)
                 .attr("class", "feature")
+                .attr("name", function(d){ 
+                  for(var i = 0; i < stateData.length; i++){
+                    if(typeof stateData[d.id] === 'undefined')
+                      return "";
+                  }
+                  return stateData[d.id].name;})
                 .style("fill", function(d){
                     return "#" + stateColour[d.id];
                 })
-                .on("click", clicked);   
+                .on("mousemove", function (d) { 
+                    d3.select(this).style("opacity", .8); 
+                    var mouse = d3.mouse(svg.node()).map(function(d) {
+                        return parseInt(d);
+                    });
+                    tooltip.classed('hidden', false)
+                        .attr('style', 'left:' + (mouse[0] + 15) +
+                                'px; top:' + (mouse[1] - 35) + 'px')
+                        .html(stateData[d.id].name);
+                  })
+                .on("mouseout", function () { 
+                    tooltip.classed('hidden', true);
+                    d3.select(this).style("opacity", 1).style("fill", function(d){
+                      return "#" + stateColour[d.id];
+                    }); 
+                  })
+                .on("click", clicked);
 
             /*g.append("path")
                 .datum(topojson.mesh(us, us.objects.counties, function(a, b) {
@@ -85,6 +114,8 @@
             if (active.node() === this) return reset();
             active.classed("active", false);
             active = d3.select(this).classed("active", true);
+
+            console.log(d3.select(this).attr("name"));
 
             var bounds = path.bounds(d),
                 dx = bounds[1][0] - bounds[0][0],
