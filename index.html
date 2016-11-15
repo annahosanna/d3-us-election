@@ -9,11 +9,11 @@
 </head>
 
 <body>
-    <div class="michigan"></div>
-    <div class="whole-us"></div>
+    <div class="whole-us" id="whole-us"></div>
+    <div class="extra-info" id="extra-info"></div>
 
     <script>
-        var width = 960,
+        var width = 800,
             height = 500,
             active = d3.select(null);
 
@@ -50,8 +50,8 @@
             stateColour[d.id] = d.colour;
           })
 
-          console.log(stateData);
-          //console.log(stateColour);
+          //console.log(stateData);
+          console.log(stateColour);
         }) 
 
         var tooltip = d3.select('.whole-us').append('div')
@@ -65,12 +65,12 @@
                 .enter().append("path")
                 .attr("d", path)
                 .attr("class", "feature")
-                .attr("name", function(d){ 
+                /*.attr("name", function(d){ 
                   for(var i = 0; i < stateData.length; i++){
                     if(typeof stateData[d.id] === 'undefined')
                       return "";
                   }
-                  return stateData[d.id].name;})
+                  return stateData[d.id].name;}) */
                 .style("fill", function(d){
                     return "#" + stateColour[d.id];
                 })
@@ -84,6 +84,9 @@
                                 'px; top:' + (mouse[1] - 35) + 'px')
                         .html(stateData[d.id].name);
                   })
+                .on("mouseover", function(d){
+                  updateInfo(d.id);
+                })
                 .on("mouseout", function () { 
                     tooltip.classed('hidden', true);
                     d3.select(this).style("opacity", 1).style("fill", function(d){
@@ -142,5 +145,163 @@
         }
 
         d3.select(self.frameElement).style("height", height + "px");
+
+
+        /* ********** INFO ********** */
+
+        var svgContainer = d3.select(".extra-info").append("svg")
+                                    .attr("width", 750)
+                                    .attr("height", 200)
+                                    .attr("class", "extraInfo");
+
+        
+        var usData = {
+            "id": "",
+            "code": "US",
+            "name": "United States",
+            "colour": "",
+            "electoralVotes": 538,
+            "party2016": "Republican",
+            "trump": 47.2,
+            "clinton": 47.8,
+            "other2016": 5,
+            "party2012": "Democratic",
+            "obama": 51.1,
+            "romney": 47.2,
+            "other2012": 1.7
+        };  //National results
+
+
+        function updateInfo (index){
+          //index = -1 is US
+
+            svgContainer.selectAll("text").remove();
+            svgContainer.selectAll("svg").remove();
+            svgContainer.selectAll("foreignObject").remove();
+
+            var title = svgContainer.append("svg:text")
+                .attr("font-size", "20px")
+                .attr('class', 'stateTitle')
+                .attr("text-align", "center")
+                .text(function(){
+                  if(index == -1)
+                    return usData.name + " - " + usData.electoralVotes + " electoral votes";
+                  return stateData[index].name + " - " + stateData[index].electoralVotes + " electoral votes";})
+                .attr("index", index)
+                .style("fill", function(){
+                  if(stateData[index].party2016 == "Republican")
+                    return "red";
+                  else
+                    return "blue";
+                });
+ 
+            var container2016 = svgContainer.append("svg")
+                .style("class", "con2016")
+                .attr("width", 300)
+                .attr("height", 50);
+
+            container2016.append("svg:text")
+              .text("2016 - Clinton vs Trump")    
+              .attr("transform", "translate(" + 0 + "," + 25 + ")");
+
+            var clinton = container2016.append("rect")
+                .attr("height", 20)
+                .attr("width", function(){
+                    return stateData[index].clinton * 2;
+                })
+                .attr('fill', 'blue')
+                .attr("transform", "translate(" + 0 + "," + 30 + ")");
+
+            container2016.append("svg:text")
+                .text(stateData[index].clinton)
+                .style("fill", "white")
+                .attr("transform", "translate(" + 5 + "," + 45 + ")");    
+
+            var other2016 = container2016.append("rect")
+              .attr("height", 20)
+              .attr("width", function(){
+                  return stateData[index].other2016 * 2;
+              })
+              .attr('fill', 'lightGrey')
+              .attr("transform", "translate(" + stateData[index].clinton * 2 + "," + 30 + ")");
+
+            var trump = container2016.append("rect")
+                .attr("height", 20)
+                .attr("width", function(){
+                    return stateData[index].trump * 2;
+                })
+                .attr('fill', 'red')
+                .attr("transform", "translate(" + (stateData[index].clinton + stateData[index].other2016) * 2 + "," + 30 + ")");
+
+            container2016.append("svg:text")
+                .text(stateData[index].trump)
+                .style("fill", "white")
+                .attr("transform", "translate(" + ((stateData[index].clinton + stateData[index].other2016) * 2 + 5) + "," + 45 + ")"); //170
+
+            /**** 2012 *****/
+            var container2012 = svgContainer.append("svg")
+                .style("class", "con2012")
+                .attr("width", 300)
+                .attr("height", 115);
+
+            container2012.append("svg:text")
+                .text("2012 - Obama vs Romney")
+                .attr("transform", "translate(" + 0 + "," + 70 + ")");
+
+            var obama = container2012.append("rect")
+                .attr("height", 20)
+                .attr("width", function(){
+                    return stateData[index].obama * 2;
+                })
+                .attr('fill', 'blue')
+                .attr("transform", "translate(" + 0 + "," + 75 + ")");
+
+            container2012.append("svg:text")
+                .text(stateData[index].obama)
+                .style("fill", "white")
+                .attr("transform", "translate(" + 5 + "," + 90 + ")");    
+
+            var other2012 = container2012.append("rect")
+              .attr("height", 20)
+              .attr("width", function(){
+                  return stateData[index].other2012 * 2;
+              })
+              .attr('fill', 'lightGrey')
+              .attr("transform", "translate(" + stateData[index].obama * 2 + "," + 75 + ")");
+
+            var romney = container2012.append("rect")
+                .attr("height", 20)
+                .attr("width", function(){
+                    return stateData[index].romney * 2;
+                })
+                .attr('fill', 'red')
+                .attr("transform", "translate(" + (stateData[index].obama + stateData[index].other2012) * 2 + "," + 75 + ")"); 
+
+            container2012.append("svg:text")
+                .text(stateData[index].romney)
+                .style("fill", "white")
+                .attr("transform", "translate(" + ((stateData[index].obama + stateData[index].other2012) * 2 + 5) + "," + 90 + ")"); 
+
+            /***** Blurb *****/
+
+            var blurbContainer =  svgContainer.append("svg")
+                                      .attr("width", 750)
+                                      .attr("height", 200);                                      
+            var t = "Prior to this year, Pennsylvania had voted Democratic in every election since 1992. Hillary Clinton, in the Democratic Primary, had won the state over Bernie Sanders by almost 13 percentage points. On top of that, the Democrats held their national convention in Philadelphia, the heart of Pennsylvania and Clinton was polling extremely well in the state. Some political experts pointed to a safe 20 electoral votes for Clinton. However, the suburban and rural voters overwhelmed the big cities and the state went red, something that hasn’t happened in decades. This state was perhaps the most devastating blow to Clinton’s chances, and a great example of Trump’s “silent supporters.”";
+            blurbContainer.append("foreignObject")
+                .attr("width", 525)
+                .attr("height", 200)
+                .text(t) 
+                //.text(stateData[index].blurb)                                     
+                .attr("transform", "translate(" + 225 + "," + 10 + ")"); 
+
+            /******* Map Info *******/
+            svgContainer.append("foreignObject")
+                .attr("width", 200)
+                .attr("height", 200)
+                .text("The map is coloured by percentage of victory: red means a large Republican victory, blue a large Demoratic victory, and purple meaning a close to 50-50 split.")
+                .style("font-size", "12px")    
+                .attr("transform", "translate(" + 0 + "," + 105 + ")"); 
+        }
     </script>
 </body>

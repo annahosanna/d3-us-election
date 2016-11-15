@@ -28,10 +28,26 @@
     stroke-linejoin: round;
 }
 .meshCounty {
-    //fill: none;
     stroke: white;
-    //stroke-linecap: round;
-    //stroke-linejoin: round;
+}
+.extraInfo{
+    padding-top: 20px;
+    padding-left: 5px;
+}
+.stateTitle{
+    font-size: 20px;
+
+    font-weight: bolder;
+    display: block;
+    margin: auto;
+    text-align: center;
+    /*fill: blue;*/
+}
+.con2016 {
+    padding-top: 30px;
+}
+.con2012{
+    padding-top: 80px;
 }
 div.tooltip {
     color: #222;
