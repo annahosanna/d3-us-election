@@ -46,6 +46,7 @@
           
 
           data.forEach(function(d, i){
+            //console.log(d.blurb);
             stateData[d.id] = d;
             stateColour[d.id] = d.colour;
           })
@@ -92,6 +93,7 @@
                     d3.select(this).style("opacity", 1).style("fill", function(d){
                       return "#" + stateColour[d.id];
                     }); 
+                    updateInfo(-1);
                   })
                 .on("click", clicked);
 
@@ -110,7 +112,7 @@
                 .attr("d", path)
                 .on("click", clicked); 
 
-            
+            updateInfo(-1); //Initialize with US data
         });
 
         function clicked(d) {
@@ -168,7 +170,8 @@
             "party2012": "Democratic",
             "obama": 51.1,
             "romney": 47.2,
-            "other2012": 1.7
+            "other2012": 1.7,
+            "blurb": "This year, Republican nominee Donald Trump (estimated 306 electoral votes) won the Electoral College and the presidency over Democratic candidate Hillary Clinton (232 electoral votes), but how did each state vote? Hover over each state to find general information about the demographics and voting patterns."
         };  //National results
 
 
@@ -189,7 +192,9 @@
                   return stateData[index].name + " - " + stateData[index].electoralVotes + " electoral votes";})
                 .attr("index", index)
                 .style("fill", function(){
-                  if(stateData[index].party2016 == "Republican")
+                  if(index == -1)
+                    return "red";
+                  else if(stateData[index].party2016 == "Republican")
                     return "red";
                   else
                     return "blue";
@@ -207,36 +212,62 @@
             var clinton = container2016.append("rect")
                 .attr("height", 20)
                 .attr("width", function(){
+                    if(index == -1)
+                        return usData.clinton *2;
                     return stateData[index].clinton * 2;
                 })
                 .attr('fill', 'blue')
                 .attr("transform", "translate(" + 0 + "," + 30 + ")");
 
             container2016.append("svg:text")
-                .text(stateData[index].clinton)
+                .text(function(){
+                  if(index == -1)
+                    return usData.clinton;
+                  return stateData[index].clinton;
+                })
                 .style("fill", "white")
                 .attr("transform", "translate(" + 5 + "," + 45 + ")");    
 
             var other2016 = container2016.append("rect")
               .attr("height", 20)
               .attr("width", function(){
+                  if(index == -1)
+                      return usData.other2016 * 2;
                   return stateData[index].other2016 * 2;
               })
               .attr('fill', 'lightGrey')
-              .attr("transform", "translate(" + stateData[index].clinton * 2 + "," + 30 + ")");
+              .attr("transform", function(){
+                if(index == -1)
+                  return "translate(" + usData.clinton * 2 + "," + 30 + ")";
+                return "translate(" + stateData[index].clinton * 2 + "," + 30 + ")";
+              });
 
             var trump = container2016.append("rect")
                 .attr("height", 20)
                 .attr("width", function(){
+                    if(index == -1)
+                        return usData.trump *2;
                     return stateData[index].trump * 2;
                 })
                 .attr('fill', 'red')
-                .attr("transform", "translate(" + (stateData[index].clinton + stateData[index].other2016) * 2 + "," + 30 + ")");
+                .attr("transform", function(){
+                  if(index == -1)
+                    return "translate(" + (usData.clinton + usData.other2016) *2 + "," + 30 + ")";
+                  return "translate(" + (stateData[index].clinton + stateData[index].other2016) * 2 + "," + 30 + ")";
+                });
 
             container2016.append("svg:text")
-                .text(stateData[index].trump)
+                .text(function(){
+                  if(index == -1)
+                    return usData.trump;
+                  return stateData[index].trump;
+                })
                 .style("fill", "white")
-                .attr("transform", "translate(" + ((stateData[index].clinton + stateData[index].other2016) * 2 + 5) + "," + 45 + ")"); //170
+                .attr("transform", function(){
+                  if(index == -1)
+                    return "translate(" + ((usData.clinton + usData.other2016) *2 + 5) + "," + 45 + ")";
+                  return "translate(" + ((stateData[index].clinton + stateData[index].other2016) * 2 + 5) + "," + 45 + ")";
+                });
 
             /**** 2012 *****/
             var container2012 = svgContainer.append("svg")
@@ -251,48 +282,76 @@
             var obama = container2012.append("rect")
                 .attr("height", 20)
                 .attr("width", function(){
+                    if (index == -1)
+                        return usData.obama *2;
                     return stateData[index].obama * 2;
                 })
                 .attr('fill', 'blue')
                 .attr("transform", "translate(" + 0 + "," + 75 + ")");
 
             container2012.append("svg:text")
-                .text(stateData[index].obama)
+                .text(function(){
+                  if(index == -1)
+                      return usData.obama;
+                  return stateData[index].obama;  
+                })
                 .style("fill", "white")
                 .attr("transform", "translate(" + 5 + "," + 90 + ")");    
 
             var other2012 = container2012.append("rect")
               .attr("height", 20)
               .attr("width", function(){
+                  if(index == -1)
+                    return usData.other2012 *2;
                   return stateData[index].other2012 * 2;
               })
               .attr('fill', 'lightGrey')
-              .attr("transform", "translate(" + stateData[index].obama * 2 + "," + 75 + ")");
+              .attr("transform", function(){
+                if(index ==-1)
+                  return "translate(" + usData.obama * 2 + "," + 75 + ")";
+                return "translate(" + stateData[index].obama * 2 + "," + 75 + ")";
+              });
 
             var romney = container2012.append("rect")
                 .attr("height", 20)
                 .attr("width", function(){
+                    if(index == -1)
+                      return usData.romney *2;
                     return stateData[index].romney * 2;
                 })
                 .attr('fill', 'red')
-                .attr("transform", "translate(" + (stateData[index].obama + stateData[index].other2012) * 2 + "," + 75 + ")"); 
+                .attr("transform", function(){
+                  if(index == -1)
+                    return "translate(" + (usData.obama + usData.other2012) * 2 + "," + 75 + ")";
+                  return "translate(" + (stateData[index].obama + stateData[index].other2012) * 2 + "," + 75 + ")";
+                });
 
             container2012.append("svg:text")
-                .text(stateData[index].romney)
+                .text(function(){
+                  if(index == -1)
+                    return usData.romney;
+                  return stateData[index].romney;
+                })
                 .style("fill", "white")
-                .attr("transform", "translate(" + ((stateData[index].obama + stateData[index].other2012) * 2 + 5) + "," + 90 + ")"); 
+                .attr("transform", function(){
+                  if(index == -1)
+                    return "translate(" + ((usData.obama + usData.other2012) * 2 + 5) + "," + 90 + ")";
+                  return "translate(" + ((stateData[index].obama + stateData[index].other2012) * 2 + 5) + "," + 90 + ")";
+                });
 
             /***** Blurb *****/
 
             var blurbContainer =  svgContainer.append("svg")
                                       .attr("width", 750)
-                                      .attr("height", 200);                                      
-            var t = "Prior to this year, Pennsylvania had voted Democratic in every election since 1992. Hillary Clinton, in the Democratic Primary, had won the state over Bernie Sanders by almost 13 percentage points. On top of that, the Democrats held their national convention in Philadelphia, the heart of Pennsylvania and Clinton was polling extremely well in the state. Some political experts pointed to a safe 20 electoral votes for Clinton. However, the suburban and rural voters overwhelmed the big cities and the state went red, something that hasn’t happened in decades. This state was perhaps the most devastating blow to Clinton’s chances, and a great example of Trump’s “silent supporters.”";
+                                      .attr("height", 200);    
             blurbContainer.append("foreignObject")
                 .attr("width", 525)
                 .attr("height", 200)
-                .text(t) 
-                //.text(stateData[index].blurb)                                     
+                .text(function(){
+                  if(index == -1)
+                    return usData.blurb;
+                  return stateData[index].blurb;
+                })                                     
                 .attr("transform", "translate(" + 225 + "," + 10 + ")"); 
 
             /******* Map Info *******/
